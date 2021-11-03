@@ -20,6 +20,12 @@
 #include <stdint.h>
 #include <string.h> /* for memcpy hack below */
 
+#if defined(coz_EXPORTS)
+#define COZ_EXPORT
+#else
+#define COZ_EXPORT __attribute__((weak))
+#endif
+
 #if defined(__cplusplus)
 extern "C" {
 #endif
@@ -61,6 +67,10 @@ static coz_counter_t* _call_coz_get_counter(int type, const char* name) {
   if(fn) return fn(type, name);
   else return 0;
 }
+
+COZ_EXPORT void _call_coz_pre_block();
+COZ_EXPORT void _call_coz_post_block(bool skip_delays);
+COZ_EXPORT void _call_coz_catch_up();
 
 // Macro to initialize and increment a counter
 #define COZ_INCREMENT_COUNTER(type, name) \

@@ -9,6 +9,7 @@
 #include <linux/limits.h>
 #include <pthread.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <sys/stat.h>
 
 #include <atomic>
@@ -248,6 +249,18 @@ public:
 }
 
 extern "C" {
+  void _call_coz_pre_block() {
+    if(initialized) profiler::get_instance().pre_block();
+  }
+
+  void _call_coz_post_block(bool skip_delays) {
+    if(initialized) profiler::get_instance().post_block(skip_delays);
+  }
+
+  void _call_coz_catch_up() {
+    if(initialized) profiler::get_instance().catch_up();
+  }
+
   /// Pass pthread_create calls to coz so child threads can inherit the parent's delay count
   int pthread_create(pthread_t* thread,
                      const pthread_attr_t* attr,
