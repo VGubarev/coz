@@ -272,6 +272,42 @@ static int resolve_pthread_rwlock_unlock(pthread_rwlock_t* rwlock) throw() {
   else return 0;  // Silently elide synchronization during linking
 }
 
+static int resolve_select(int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, struct timeval *timeout) throw() {
+  GET_SYMBOL(select);
+  if(real_select) return real_select(nfds, readfds, writefds, exceptfds, timeout);
+  else return 0;
+}
+
+static int resolve_epoll_wait(int epfd, struct epoll_event *events, int maxevents, int timeout) throw() {
+  GET_SYMBOL(epoll_wait);
+  if(real_epoll_wait) return real_epoll_wait(epfd, events, maxevents, timeout);
+  else return 0;
+}
+
+static int resolve_sem_post(sem_t * sem) throw() {
+  GET_SYMBOL(sem_post);
+  if(real_sem_post) return real_sem_post(sem);
+  else return 0;
+}
+
+static int resolve_sem_wait(sem_t * sem) throw() {
+  GET_SYMBOL(sem_wait);
+  if(real_sem_wait) return real_sem_wait(sem);
+  else return 0;
+}
+
+static int resolve_sem_trywait(sem_t * sem) throw() {
+  GET_SYMBOL(sem_trywait);
+  if(real_sem_trywait) return real_sem_trywait(sem);
+  else return 0;
+}
+
+static int resolve_sem_timedwait(sem_t * sem, const struct timespec *abs_timeout) throw() {
+  GET_SYMBOL(sem_timedwait);
+  if(real_sem_timedwait) return real_sem_timedwait(sem, abs_timeout);
+  else return 0;
+}
+
 #define DEFINE_WRAPPER(name) decltype(::name)* name = &resolve_##name;
 
 /**
@@ -323,4 +359,12 @@ namespace real {
   DEFINE_WRAPPER(pthread_rwlock_trywrlock);
   DEFINE_WRAPPER(pthread_rwlock_timedwrlock);
   DEFINE_WRAPPER(pthread_rwlock_unlock);
+
+  DEFINE_WRAPPER(epoll_wait);
+  DEFINE_WRAPPER(select);
+
+  DEFINE_WRAPPER(sem_post);
+  DEFINE_WRAPPER(sem_trywait);
+  DEFINE_WRAPPER(sem_wait);
+  DEFINE_WRAPPER(sem_timedwait);
 }

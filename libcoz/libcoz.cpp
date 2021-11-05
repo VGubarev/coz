@@ -394,6 +394,46 @@ extern "C" {
     return real::pthread_rwlock_unlock(rwlock);
   }
 
+  int select(int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, struct timeval *timeout) {
+    if(initialized) profiler::get_instance().pre_block();
+    int result = real::select(nfds, readfds, writefds, exceptfds, timeout);
+    if(initialized) profiler::get_instance().post_block(result >= 0 && timeout == nullptr);
+    return result;
+  }
+
+  int epoll_wait(int epfd, struct epoll_event *events, int maxevents, int timeout) {
+    if(initialized) profiler::get_instance().pre_block();
+    int result = real::epoll_wait(epfd, events, maxevents, timeout);
+    if(initialized) profiler::get_instance().post_block(result > 0);
+    return result;
+  }
+
+  int sem_post(sem_t * sem) throw() {
+    if(initialized) profiler::get_instance().catch_up();
+    return real::sem_post(sem);
+  }
+
+  int sem_wait(sem_t * sem) {
+    if(initialized) profiler::get_instance().pre_block();
+    int result = real::sem_wait(sem);
+    if(initialized) profiler::get_instance().post_block(true);
+    return result;
+  }
+
+  int sem_trywait(sem_t * sem) throw() {
+    if(initialized) profiler::get_instance().pre_block();
+    int result = real::sem_wait(sem);
+    if(initialized) profiler::get_instance().post_block(true);
+    return result;
+  }
+
+  int sem_timedwait(sem_t * sem, const struct timespec *abs_timeout) {
+    if(initialized) profiler::get_instance().pre_block();
+    int result = real::sem_timedwait(sem, abs_timeout);
+    if(initialized) profiler::get_instance().post_block(result == 0);
+    return result;
+  }
+
   void * malloc(size_t bytes_requested) throw() {
     if (!initialized && !init_in_progress) {
       static LocalArena<1 << 22> arena;

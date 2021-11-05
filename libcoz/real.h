@@ -9,8 +9,10 @@
 #define CAUSAL_RUNTIME_REAL_H
 
 #include <pthread.h>
+#include <semaphore.h>
 #include <signal.h>
 #include <stdlib.h>
+#include <sys/epoll.h>
 #include <unistd.h>
 
 #define DECLARE_WRAPPER(name) extern decltype(::name)* name;
@@ -59,6 +61,14 @@ namespace real {
   DECLARE_WRAPPER(pthread_rwlock_trywrlock);
   DECLARE_WRAPPER(pthread_rwlock_timedwrlock);
   DECLARE_WRAPPER(pthread_rwlock_unlock);
+
+  DECLARE_WRAPPER(epoll_wait);
+  DECLARE_WRAPPER(select);
+
+  DECLARE_WRAPPER(sem_post);
+  DECLARE_WRAPPER(sem_wait);
+  DECLARE_WRAPPER(sem_trywait);
+  DECLARE_WRAPPER(sem_timedwait);
 };
 
 #endif
