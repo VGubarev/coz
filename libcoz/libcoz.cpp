@@ -422,7 +422,7 @@ extern "C" {
 
   int sem_trywait(sem_t * sem) throw() {
     if(initialized) profiler::get_instance().pre_block();
-    int result = real::sem_wait(sem);
+    int result = real::sem_trywait(sem);
     if(initialized) profiler::get_instance().post_block(true);
     return result;
   }
